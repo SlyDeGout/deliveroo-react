@@ -1,9 +1,16 @@
 import React from "react";
+import formatPrice from "../utils/formatprice";
 
 class Basket extends React.Component {
   //{ basket, onClickValidate, basketContent } = props;
+
   render() {
+    const deliveryCost = 2.5;
     let basketContent;
+    let subTotal = 0;
+    const validateClassName =
+      "validate " + (this.props.basket.length > 0 ? "validate-active" : "");
+
     if (this.props.basket.length === 0) {
       basketContent = (
         <div className="basket-content-empty">Votre panier est vide</div>
@@ -12,35 +19,35 @@ class Basket extends React.Component {
       basketContent = [];
       console.log("---");
       const menusKeys = Object.keys(this.props.menus);
-      menusKeys.forEach(menuName => {
-        //console.log(" -- " + menuName);
-        this.props.menus[menuName].forEach(menuItem => {
-          //console.log("  -");
-          this.props.basket.forEach(basketItem => {
-            console.log("   " + menuItem.id + " === " + basketItem.id);
+      this.props.basket.forEach(basketItem => {
+        menusKeys.forEach(menuName => {
+          //console.log(" -- " + menuName);
+          this.props.menus[menuName].forEach(menuItem => {
+            //console.log("  -");
+            //console.log("   " + menuItem.id + " === " + basketItem.id);
             if (menuItem.id === basketItem.id) {
-              console.log("found");
+              let totalItem =
+                parseFloat(basketItem.quantity) * parseFloat(menuItem.price);
+              subTotal += totalItem;
               basketContent.push(
-                <div key={menuItem.id}>
+                <div className="basketItem" key={menuItem.id}>
                   <button
                     onClick={e => {
-                      this.props.addRemoveFromBasket(basketItem.id, -1);
+                      this.props.modifyQuantity(basketItem.id, -1);
                     }}
                   >
                     -
                   </button>
-                  {basketItem.quantity}
+                  <span>{basketItem.quantity}</span>
                   <button
                     onClick={() => {
-                      this.props.addRemoveFromBasket(basketItem.id, 1);
+                      this.props.modifyQuantity(basketItem.id, 1);
                     }}
                   >
                     +
                   </button>
                   {menuItem.title},{" "}
-                  {(
-                    parseFloat(basketItem.quantity) * parseFloat(menuItem.price)
-                  ).toFixed(2) +
+                  {formatPrice(totalItem) +
                     " €" +
                     " / " +
                     basketItem.quantity * parseFloat(menuItem.price)}
@@ -54,20 +61,44 @@ class Basket extends React.Component {
 
     return (
       <aside className="basket">
-        <button
-          className={
-            "validate " +
-            (this.props.basket.length > 0 ? "validate-active" : "")
-          }
-          onClick={e => {
-            if (this.props.basket.length > 0) {
-              this.props.onClickValidate();
-            }
-          }}
-        >
-          Valider mon panier
-        </button>
-        <div className="basket-content">{basketContent}</div>
+        <div className="basketInside">
+          <button
+            className={validateClassName}
+            onClick={e => {
+              if (this.props.basket.length > 0) {
+                this.props.onClickValidate();
+              }
+            }}
+          >
+            Valider mon panier
+          </button>
+          <div className="basket-content">
+            {basketContent}
+
+            {this.props.basket.length > 0 && (
+              <div>
+                <div className="basket-separator" />
+                <div className="basket-footer-part">
+                  <p>
+                    <span>Sous-total</span>
+                    <span>{formatPrice(subTotal)} €</span>
+                  </p>
+                  <p>
+                    <span className="bodyBold">Frais de livraison</span>
+                    <span>{formatPrice(deliveryCost)} €</span>
+                  </p>
+                </div>
+                <div className="basket-separator-gradient" />
+                <div className="basket-footer-part bodyBold">
+                  <p>
+                    <span>Total</span>
+                    <span>{formatPrice(subTotal + deliveryCost)} €</span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </aside>
     );
   }

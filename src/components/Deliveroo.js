@@ -3,16 +3,20 @@ import axios from "axios";
 import Restaurant from "./restaurant";
 import Menu from "./menu";
 import Basket from "./Basket.js";
+import formatPrice from "../utils/formatprice";
 
 class App extends React.Component {
   state = {
     isLoading: true,
     restaurant: null,
     menus: null,
-    basket: []
+    basket: [],
+    popOver: null, // { title: "Titre", description: "Description", price: "12.00" },
+    popOverQuantity: 1,
+    error: false
   };
 
-  addRemoveFromBasket = (id, quantity) => {
+  modifyQuantity = (id, quantity) => {
     const modBasket = [...this.state.basket];
     for (let i = 0; i < modBasket.length; i++) {
       if (
@@ -21,13 +25,41 @@ class App extends React.Component {
           quantity > 0)
       ) {
         modBasket[i].quantity += quantity;
+        if (modBasket[i].quantity <= 0) {
+          modBasket.splice(i, 1);
+        }
         break;
       }
     }
+
     this.setState({ basket: modBasket });
   };
 
+  // onMenuCardClick = menuItem => {
+  //   const modBasket = [...this.state.basket];
+  //   let idxBasket = -1;
+  //   for (var i = 0; i < modBasket.length; i++) {
+  //     if (modBasket[i].id === menuItem.id) {
+  //       idxBasket = i;
+  //     }
+  //   }
+  //   if (idxBasket === -1) {
+  //     modBasket.push({ ...menuItem, quantity: 1 });
+  //   } else {
+  //     modBasket[idxBasket].quantity++;
+  //   }
+  //   this.setState({ basket: modBasket });
+  // };
+
   onMenuCardClick = menuItem => {
+    this.setState({ popOver: menuItem });
+  };
+
+  onPopOverCancelClick = () => {
+    this.setState({ popOver: null, popOverQuantity: 1 });
+  };
+
+  onPopOverTotalClick = (menuItem, quantity) => {
     const modBasket = [...this.state.basket];
     let idxBasket = -1;
     for (var i = 0; i < modBasket.length; i++) {
@@ -36,77 +68,95 @@ class App extends React.Component {
       }
     }
     if (idxBasket === -1) {
-      modBasket.push({ ...menuItem, quantity: 1 });
+      modBasket.push({ ...menuItem, quantity: quantity });
     } else {
-      modBasket[idxBasket].quantity++;
+      modBasket[idxBasket].quantity += quantity;
     }
-    this.setState({ basket: modBasket });
+    this.setState({ basket: modBasket, popOver: null, popOverQuantity: 1 });
   };
 
   render() {
     console.log("DELIVEROO RENDER");
+
+    return (
+      <div style={{ fontSize: "20px" }}>
+        Il y a des petits doublons de données dans les states "Basket" et
+        "popOver" ... ^_^ <br />
+        <br />
+        Les clicks sur le menu ne scrolle pas smooth ni à la bonne position
+        ... ;p <br />
+        <br />( pousse le sur github avant de faire des modifs )
+      </div>
+    );
+
+    if (this.state.error) {
+      return <div>Error while fetching datas...</div>;
+    }
+
     if (this.state.isLoading) {
       return <div>Loading...</div>;
     }
 
-    let menuList;
-    if (this.state.restaurant === null || this.state.menus === null) {
-      return <div>Fatal error...</div>;
-    } else {
-      menuList = Object.keys(this.state.menus);
-    }
-
-    // let basketContent;
-    // if (this.state.basket.length === 0) {
-    //   basketContent = (
-    //     <div className="basket-content-empty">Votre panier est vide</div>
-    //   );
-    // } else {
-    //   basketContent = [];
-    //   console.log("---");
-    //   const menusKeys = Object.keys(this.state.menus);
-    //   menusKeys.forEach(menuName => {
-    //     //console.log(" -- " + menuName);
-    //     this.state.menus[menuName].forEach(menuItem => {
-    //       //console.log("  -");
-    //       this.state.basket.forEach(basketItem => {
-    //         console.log("   " + menuItem.id + " === " + basketItem.id);
-    //         if (menuItem.id === basketItem.id) {
-    //           console.log("found");
-    //           basketContent.push(
-    //             <div key={menuItem.id}>
-    //               <button
-    //                 onClick={e => {
-    //                   this.addRemoveFromBasket(basketItem.id, -1);
-    //                 }}
-    //               >
-    //                 -
-    //               </button>
-    //               {basketItem.quantity}
-    //               <button
-    //                 onClick={() => {
-    //                   this.addRemoveFromBasket(basketItem.id, 1);
-    //                 }}
-    //               >
-    //                 +
-    //               </button>
-    //               {menuItem.title},{" "}
-    //               {(
-    //                 parseFloat(basketItem.quantity) * parseFloat(menuItem.price)
-    //               ).toFixed(2) +
-    //                 " €" +
-    //                 " / " +
-    //                 basketItem.quantity * parseFloat(menuItem.price)}
-    //             </div>
-    //           );
-    //         }
-    //       });
-    //     });
-    //   });
-    // }
+    const menuList = Object.keys(this.state.menus);
+    const notEmptyMenuList = menuList.filter(name => {
+      return this.state.menus[name].length > 0;
+    });
 
     return (
       <div className="App">
+        {this.state.popOver !== null && (
+          <div className="popOver">
+            <div className="popOverContent">
+              <img src={this.state.popOver.picture} alt="" />
+              <span>{this.state.popOver.title}</span>
+              <span>{this.state.popOver.description}</span>
+              <span>
+                <button
+                  onClick={e => {
+                    if (this.state.popOverQuantity - 1 > 0) {
+                      this.setState({
+                        popOverQuantity: this.state.popOverQuantity - 1
+                      });
+                    }
+                  }}
+                >
+                  -
+                </button>
+                {this.state.popOverQuantity}
+                <button
+                  onClick={e =>
+                    this.setState({
+                      popOverQuantity: this.state.popOverQuantity + 1
+                    })
+                  }
+                >
+                  +
+                </button>
+              </span>
+              <button onClick={() => this.onPopOverCancelClick()}>
+                Annuler
+              </button>
+              <button
+                onClick={e =>
+                  this.onPopOverTotalClick(
+                    this.state.popOver,
+                    this.state.popOverQuantity
+                  )
+                }
+              >
+                Total{" "}
+                {formatPrice(
+                  this.state.popOver.price * this.state.popOverQuantity
+                )}{" "}
+                €
+              </button>
+            </div>
+            <div
+              className="popOverBackgroundClick"
+              onClick={() => this.onPopOverCancelClick()}
+            />
+          </div>
+        )}
         <header>
           <div className="container">
             <div className="logo">
@@ -124,10 +174,21 @@ class App extends React.Component {
             picture={this.state.restaurant.picture}
           />
         }
+        <nav>
+          <div className="container">
+            <ul>
+              {notEmptyMenuList.map((navItem, index) => (
+                <li key={index}>
+                  <a href={"#" + navItem}>{navItem}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
         <main>
           <div className="container">
             <section className="menu-list">
-              {menuList.map((name, index) => {
+              {notEmptyMenuList.map((name, index) => {
                 if (this.state.menus[name].length > 0) {
                   return (
                     <Menu
@@ -151,8 +212,8 @@ class App extends React.Component {
                 onClickValidate={() => {
                   console.log("onClick Basket Validate");
                 }}
-                addRemoveFromBasket={(id, quantity) =>
-                  this.addRemoveFromBasket(id, quantity)
+                modifyQuantity={(id, quantity) =>
+                  this.modifyQuantity(id, quantity)
                 }
               />
             }
@@ -177,6 +238,7 @@ class App extends React.Component {
         console.log({
           error: e.message
         });
+        this.setState({ error: true });
       });
   }
 }

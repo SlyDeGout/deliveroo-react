@@ -5,7 +5,7 @@ function Menu(props) {
   const { name, menus, onMenuCardClick } = props;
 
   return (
-    <section className="menu">
+    <section id={name} className="menu">
       <h3 className="menu-title">{name}</h3>
       <div className="menu-cards">
         {menus.map((menuItem, index) => {
@@ -22,7 +22,8 @@ function Menu(props) {
                 onMenuCardClick({
                   id: menuItem.id,
                   title: menuItem.title,
-                  price: menuItem.price
+                  price: menuItem.price,
+                  picture: menuItem.picture
                 });
               }}
             />

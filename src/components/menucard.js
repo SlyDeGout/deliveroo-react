@@ -1,4 +1,5 @@
 import React from "react";
+import formatPrice from "../utils/formatprice";
 
 function MenuCard(props) {
   const {
@@ -25,13 +26,13 @@ function MenuCard(props) {
       <div className="menu-card-details">
         <h4>{title}</h4>
         <p>{description}</p>
-        <span>{price}</span>
+        <span>{formatPrice(price)}</span>
         {popular && (
-          <span>
+          <span className="popular bodyBold">
             <span role="img" aria-label="popular">
               ⭐
             </span>{" "}
-            Popular
+            Populaire
           </span>
         )}
       </div>

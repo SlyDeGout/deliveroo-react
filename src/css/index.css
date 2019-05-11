@@ -11,11 +11,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
   --deliveroo-light-gray: #f4f5f5;
   --deliveroo-gray: #828585;
-  --deliveroo-light-black: #2c3131;
+  --deliveroo-light-black: #2e3333;
+  --deliveroo-green: #00ccbc;
+  --deliveroo-light-green: #33d6c9;
+  --deliveroo-orange: #ff8100;
   /* color: var(--deliveroo-light-black); */
   color: var(--deliveroo-gray);
   font-size: 14px;
   line-height: 19px;
+}
+
+.bodyBold {
+  font-weight: 700;
 }
 
 code {
@@ -83,24 +90,67 @@ header {
 }
 
 /*   Main   */
+main {
+  background-color: var(--deliveroo-light-gray);
+}
+
 main .container {
   display: flex;
   justify-content: space-between;
+  position: relative;
 }
 
-main {
-  background-color: var(--deliveroo-light-gray);
+/*   Menu List   */
+.menu-list {
+  flex: 1;
+  margin-top: 20px;
+}
+
+nav {
+  background-color: white;
+  border-top: solid 2px var(--deliveroo-light-gray);
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 10;
+  height: 50px;
+}
+
+nav ul {
+  max-width: 67%;
+  display: flex;
+  flex: 2;
+  padding: 15px 0px;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--deliveroo-green);
+  margin: 0 10px;
 }
 
 /*    Basket   */
 .basket {
   display: block;
-  background-color: white;
+
   width: 370px;
   height: 100%;
-  padding: 10px;
   box-sizing: border-box;
   font-size: 16px;
+
+  position: absolute;
+  top: -50px;
+  right: 0px;
+  z-index: 10;
+}
+
+.basketInside {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.1);
+}
+.basket-content {
   position: sticky;
   position: -webkit-sticky;
   top: 0;
@@ -113,20 +163,24 @@ main {
   background-color: #bac3c3;
   font-weight: 700;
   padding: 20px 0;
-  width: 100%;
+  width: calc(100% - 20px);
+  margin: 10px;
   font-size: 16px;
 }
 
 .basket .validate-active {
-  background-color: #00ccbc;
+  background-color: var(--deliveroo-green);
   color: white;
 }
 
 .basket .validate-active:hover {
   cursor: pointer;
+  background-color: var(--deliveroo-light-green);
 }
 
 .basket-content {
+  padding: 10px 0px;
+  color: var(--deliveroo-light-black);
 }
 
 .basket-content-empty {
@@ -134,15 +188,59 @@ main {
   padding: 64px 0;
 }
 
-/*   Menu List   */
-.menu-list {
-  margin-top: 70px;
-  flex: 1;
+.basketItem {
+  padding: 10px 20px;
+}
+
+.basketItem button {
+  border-radius: 10px;
+  border: solid 2px var(--deliveroo-light-green);
+  color: var(--deliveroo-light-green);
+  width: 20px;
+  height: 20px;
+  padding: 0px;
+  font-size: 20px;
+  line-height: 10px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.basketItem span {
+  margin-right: 8px;
+}
+
+.basketItem button:hover {
+  border: solid 2px var(--deliveroo-green);
+  color: var(--deliveroo-green);
+}
+
+.basket-separator {
+  border-bottom: solid 2px var(--deliveroo-light-gray);
+  margin: 10px 20px;
+}
+
+.basket-separator-gradient {
+  height: 5px;
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0),
+    var(--deliveroo-light-gray)
+  );
+  margin: 10px 5px;
+}
+
+.basket-footer-part {
+  padding: 10px 0;
+}
+
+.basket-footer-part p {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 20px;
 }
 
 /*   Menu   */
 .menu {
-  margin-bottom: 50px;
+  padding-top: 50px;
 }
 
 .menu-title {
@@ -180,6 +278,10 @@ main {
   object-fit: cover;
 }
 
+.menu-card .popular {
+  color: var(--deliveroo-orange);
+}
+
 /*   Menu Card Details  */
 .menu-card-details {
   margin-right: 20px;
@@ -193,12 +295,48 @@ main {
   height: 38px;
 }
 
+/*   Pop Over   */
+
+.popOver {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popOverBackgroundClick {
+  height: 100%;
+  width: 100%;
+}
+
+.popOverContent {
+  position: absolute;
+  width: 50vw;
+  height: 70vh;
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.popOverContent img {
+  width: 500px;
+  height: 300px;
+  object-fit: cover;
+}
+
 @media (max-width: 1120px) {
   .container {
     width: 100%;
     padding: 0 20px;
   }
   .menu-card {
-    width: 44%;
+    /* width: 44%; */
   }
 }
